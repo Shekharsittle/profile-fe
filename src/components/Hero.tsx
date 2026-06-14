@@ -29,48 +29,46 @@ export function Hero() {
       >
         {/* Avatar + name row */}
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div
-            style={{
-              position: "relative",
-              width: 72,
-              height: 72,
-              flexShrink: 0,
-              borderRadius: "50%",
-              overflow: "hidden",
-              background:
-                "linear-gradient(135deg, var(--panel), var(--panel-2))",
-              border: "1px solid var(--line-strong)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundPosition: "left center",
-              backgroundSize: "contain",
-            }}
-          >
-            <span
+          <div style={{ position: "relative", flexShrink: 0, width: 72, height: 72 }}>
+            <div
               style={{
-                position: "relative",
-                zIndex: 1,
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                color: "var(--ink-faint)",
-                fontSize: 8,
-                textTransform: "uppercase",
-                letterSpacing: "0.16em",
+                width: 72,
+                height: 72,
+                borderRadius: "50%",
+                overflow: "hidden",
+                background:
+                  "linear-gradient(135deg, var(--panel), var(--panel-2))",
+                border: "1px solid var(--line-strong)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundPosition: "left center",
+                backgroundSize: "contain",
               }}
             >
-              photo
-            </span>
-            {/* Online indicator */}
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                  color: "var(--ink-faint)",
+                  fontSize: 8,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.16em",
+                }}
+              >
+                photo
+              </span>
+            </div>
+            {/* Online indicator — outside overflow:hidden so it renders fully */}
             <span
               style={{
                 position: "absolute",
-                bottom: 4,
-                right: 4,
+                bottom: 3,
+                right: 3,
                 width: 12,
                 height: 12,
                 borderRadius: "50%",
                 background: "var(--accent)",
-                boxShadow: "0 0 0 2px var(--panel), 0 0 0 3px var(--accent)",
+                boxShadow: "0 0 0 2px var(--bg), 0 0 0 3px var(--accent)",
               }}
             />
           </div>
@@ -85,7 +83,7 @@ export function Hero() {
                 letterSpacing: "0.18em",
               }}
             >
-              AI / ML Engineer
+              AI / ML Engineer · AI Architect
             </div>
             <h1
               style={{
@@ -108,8 +106,7 @@ export function Hero() {
             lineHeight: 1.5,
           }}
         >
-          Shipping ML systems that actually make it to production — RAG, LLM
-          evaluation, and platform work.
+          Designing and deploying production-grade Agentic AI systems — multi-agent orchestration, RAG pipelines, LLM fine-tuning, and cloud-native deployments on AWS and Azure.
         </p>
 
         {/* Pills */}
@@ -138,7 +135,7 @@ export function Hero() {
             />
             open to roles
           </span>
-          {["Bangalore · remote", "6+ yrs"].map((label) => (
+          {["Pune · remote", "4+ yrs"].map((label) => (
             <span
               key={label}
               style={{

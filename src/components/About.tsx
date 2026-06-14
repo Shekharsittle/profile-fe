@@ -1,10 +1,10 @@
 import { SectionHead } from "./SectionHead";
 
 const STATS = [
-  { n: "6+", l: "years shipping ML" },
-  { n: "12", l: "models in prod" },
+  { n: "4+", l: "years in AI/ML" },
+  { n: "8+", l: "agents in prod" },
   { n: "04", l: "companies" },
-  { n: "∞", l: "curiosity" },
+  { n: "98.6", l: "GATE percentile" },
 ];
 
 export function About() {
@@ -34,10 +34,9 @@ export function About() {
               maxWidth: "56ch",
             }}
           >
-            I'm an AI/ML engineer who's spent the last six years taking models
-            from notebook to production — recommendation systems, forecasting
-            pipelines, and lately, retrieval-augmented LLM applications that
-            serve real users at real scale.
+            I'm an AI/ML Engineer and AI Architect with 4+ years of experience
+            designing and deploying production-grade Agentic AI systems for BFSI,
+            healthcare, and telecom clients.
           </p>
           <p
             style={{
@@ -48,12 +47,10 @@ export function About() {
               maxWidth: "56ch",
             }}
           >
-            I care about the unglamorous parts: evaluation harnesses, data
-            contracts, observability, and the boring engineering discipline that
-            turns a demo into a dependable system. I lean generalist — comfortable
-            owning a model from data ingestion through inference infra, and
-            collaborating with PMs, designers, and platform teams to ship the
-            whole thing.
+            My expertise spans multi-agent orchestration with LangGraph and LangChain,
+            RAG pipelines, LLM fine-tuning, and cloud-native deployments on AWS and
+            Azure. I own end-to-end architecture — from system design and client
+            solutioning to backend implementation and CI/CD delivery.
           </p>
           <p
             style={{
@@ -63,8 +60,9 @@ export function About() {
               maxWidth: "56ch",
             }}
           >
-            Outside work: reading ML papers over coffee, tinkering with small
-            home-lab GPUs, and mentoring juniors breaking into the field.
+            M.Tech from IIT (ISM) Dhanbad (CGPA 8.27, GATE 98.6 percentile). When
+            not building agents, I'm exploring new LLM architectures and mentoring
+            engineers breaking into the AI field.
           </p>
         </div>
 

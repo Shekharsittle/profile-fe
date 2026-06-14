@@ -2,16 +2,28 @@ import { SectionHead } from "./SectionHead";
 
 const EDU = [
   {
-    lg: "IT",
-    degree: "M.Tech, Artificial Intelligence",
-    school: "Indian Institute of Technology · Campus",
-    yr: "2017 — 2019 · CGPA 8.6",
+    lg: "IIT",
+    degree: "M.Tech – Mechanical Engineering",
+    school: "IIT (ISM) Dhanbad",
+    yr: "CGPA 8.27 · GATE 98.6 percentile",
   },
   {
-    lg: "BE",
-    degree: "B.E., Computer Science & Engineering",
-    school: "Engineering College Name · University",
-    yr: "2013 — 2017 · First class",
+    lg: "PGP",
+    degree: "PGP in Data Science & Engineering",
+    school: "Great Lakes Institute of Management",
+    yr: "Jul 2022 — Jul 2023",
+  },
+  {
+    lg: "BTech",
+    degree: "B.Tech – Mechanical Engineering",
+    school: "JSS Academy of Technical Education",
+    yr: "74.8%",
+  },
+  {
+    lg: "GCP",
+    degree: "Cloud Digital Leader",
+    school: "Google Cloud Platform",
+    yr: "Certification",
   },
 ];
 
@@ -35,6 +47,7 @@ export function Education() {
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
           gap: 14,
+          gridAutoRows: "auto",
         }}
       >
         {EDU.map((e) => (

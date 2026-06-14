@@ -2,10 +2,10 @@ import { useState } from "react";
 import { SectionHead } from "./SectionHead";
 
 const LINKS = [
-  { k: "email", label: "hi@shekhar.dev", href: "mailto:hi@shekhar.dev" },
-  { k: "linkedin", label: "/in/shekhar-singh", href: "#" },
-  { k: "github", label: "/shekhar-singh", href: "#" },
-  { k: "calendar", label: "book a 15-min intro →", href: "#" },
+  { k: "email", label: "shekhar.singhh9@gmail.com", href: "mailto:shekhar.singhh9@gmail.com" },
+  { k: "phone", label: "+91 8448519835", href: "tel:+918448519835" },
+  { k: "linkedin", label: "/in/shekhar-singhh9", href: "https://linkedin.com/in/shekhar-singhh9" },
+  { k: "github", label: "/Shekharsittle", href: "https://github.com/Shekharsittle" },
   { k: "resume", label: "download resume.pdf ↓", href: "#" },
 ];
 
