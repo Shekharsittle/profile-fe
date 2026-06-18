@@ -39,24 +39,18 @@ export function Hero() {
                 background:
                   "linear-gradient(135deg, var(--panel), var(--panel-2))",
                 border: "1px solid var(--line-strong)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundPosition: "left center",
-                backgroundSize: "contain",
               }}
             >
-              <span
+              <img
+                src="/photo.jpeg"
+                alt="Shekhar Singh"
                 style={{
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  color: "var(--ink-faint)",
-                  fontSize: 8,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.16em",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
                 }}
-              >
-                photo
-              </span>
+              />
             </div>
             {/* Online indicator — outside overflow:hidden so it renders fully */}
             <span
