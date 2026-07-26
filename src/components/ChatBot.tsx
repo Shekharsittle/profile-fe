@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { streamChat } from "../lib/chatApi";
+import { Markdown } from "./Markdown";
 
 interface Message {
   role: "ai" | "user";
@@ -6,53 +8,10 @@ interface Message {
   typing?: boolean;
 }
 
-const CANNED: Record<string, string> = {
-  hire: "In 3 lines: 6+ years shipping ML to production, strong evaluation & MLOps habits, and prior lead experience at Company A. Want examples of any of those?",
-  project:
-    "The one he's most proud of is the customer-support RAG system — 200k docs, ~45 QPS, and ~24% ticket deflection. He built the eval harness from scratch to catch hallucinations early.",
-  stack:
-    "Core: Python, PyTorch, HF Transformers. Infra: Docker, K8s, Airflow, MLflow, AWS. He's also been writing Rust for perf-critical inference paths lately.",
-  years:
-    "6+ years end-to-end — from classical ML (forecasting, recsys) through modern LLM/RAG systems.",
-  avail:
-    "Currently at Company A with a 60-day notice. Open to roles for the right team — prefers senior/staff IC positions with real platform ownership.",
-  resume:
-    "You can download it from the button in the hero, or email him directly at hi@shekhar.dev and he'll send the latest.",
-  contact:
-    "Quickest paths: hi@shekhar.dev, LinkedIn /in/shekhar-singh, or book a 15-min intro via the Contact section below.",
-  default:
-    "Good question. In short — I know Shekhar's work across RAG, recsys, forecasting, and MLOps. Ask me something specific (why hire him, top project, stack, availability, etc.) and I'll dig in.",
+const GREETING: Message = {
+  role: "ai",
+  text: "Hey 👋 — I'm an AI twin of Shekhar. I know his work, projects, stack, and what he's looking for. Ask me anything, or try a suggested prompt below.",
 };
-
-function classify(q: string): string {
-  const s = q.toLowerCase();
-  if (/hire|fit|why.*you|strength/.test(s)) return "hire";
-  if (/project|case|built|shipped/.test(s)) return "project";
-  if (/stack|tool|framework|language|tech/.test(s)) return "stack";
-  if (/year|experience|how long|seniority/.test(s)) return "years";
-  if (/notice|avail|start|join|when/.test(s)) return "avail";
-  if (/resume|cv|pdf/.test(s)) return "resume";
-  if (/contact|email|reach|linkedin/.test(s)) return "contact";
-  return "default";
-}
-
-// TODO: Replace mockReply with your FastAPI + Gemini backend.
-// Example:
-//   async function askBackend(message: string, history: Message[]) {
-//     const res = await fetch('https://your-api.example.com/chat', {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ message, history })
-//     });
-//     const data = await res.json();
-//     return data.reply as string;
-//   }
-function mockReply(q: string): Promise<string> {
-  return new Promise((resolve) => {
-    const delay = 400 + Math.random() * 600;
-    setTimeout(() => resolve(CANNED[classify(q)]), delay);
-  });
-}
 
 const SUGGESTIONS = [
   { label: "Why hire him?", q: "Why should we hire Shekhar?" },
@@ -67,16 +26,18 @@ const SUGGESTIONS = [
 ];
 
 export function ChatBot() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "ai",
-      text: "Hey 👋 — I'm an AI twin of Shekhar. I know his work, projects, stack, and what he's looking for. Ask me anything, or try a suggested prompt below.",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([GREETING]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Session id from the backend, kept in a ref so it survives re-renders and
+  // is readable inside the async streaming closure without re-triggering it.
+  const sessionIdRef = useRef<string | null>(null);
+  // Controller for the in-flight stream, so it can be aborted on unmount.
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -100,26 +61,53 @@ export function ChatBot() {
     }
   }, [messages]);
 
+  // Replace the last (AI) message in place — used to stream tokens into it.
+  function updateLastAiMessage(message: Message) {
+    setMessages((prev) => {
+      const next = [...prev];
+      next[next.length - 1] = message;
+      return next;
+    });
+  }
+
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
     setMessages((prev) => [...prev, { role: "user", text }]);
     setLoading(true);
 
-    // typing indicator
-    setMessages((prev) => [
-      ...prev,
-      { role: "ai", text: "", typing: true },
-    ]);
+    // Placeholder AI bubble showing the typing indicator until the first
+    // chunk arrives, then progressively filled as the stream comes in.
+    setMessages((prev) => [...prev, { role: "ai", text: "", typing: true }]);
 
-    // TODO: swap with askBackend(text, messages) for live responses
-    const reply = await mockReply(text);
+    const controller = new AbortController();
+    abortRef.current = controller;
+    let reply = "";
 
-    setMessages((prev) => {
-      const next = [...prev];
-      next[next.length - 1] = { role: "ai", text: reply };
-      return next;
-    });
-    setLoading(false);
+    try {
+      await streamChat({
+        message: text,
+        sessionId: sessionIdRef.current,
+        signal: controller.signal,
+        onSessionId: (id) => {
+          sessionIdRef.current = id;
+        },
+        onChunk: (chunk) => {
+          reply += chunk;
+          updateLastAiMessage({ role: "ai", text: reply, typing: false });
+        },
+      });
+      // Guard against an empty stream so the typing dots never linger.
+      updateLastAiMessage({ role: "ai", text: reply || "…", typing: false });
+    } catch (err) {
+      if ((err as Error).name === "AbortError") return;
+      updateLastAiMessage({
+        role: "ai",
+        text: "Sorry — I couldn't reach the server. Please try again.",
+      });
+    } finally {
+      if (abortRef.current === controller) abortRef.current = null;
+      setLoading(false);
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -127,6 +115,19 @@ export function ChatBot() {
     const v = input.trim();
     setInput("");
     sendMessage(v);
+  }
+
+  // Start a fresh conversation: abort any in-flight stream, clear the session
+  // id (so the next message gets a new one from the backend), and reset the
+  // transcript to the greeting.
+  function resetSession() {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    sessionIdRef.current = null;
+    setInput("");
+    setLoading(false);
+    setMessages([GREETING]);
+    inputRef.current?.focus();
   }
 
   return (
@@ -171,6 +172,38 @@ export function ChatBot() {
           ))}
         </div>
         <div style={{ flex: 1 }}>ai-twin · /chat</div>
+        <button
+          onClick={resetSession}
+          title="Start a new conversation"
+          disabled={messages.length <= 1 && !loading}
+          style={{
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: 10,
+            textTransform: "uppercase",
+            letterSpacing: "0.14em",
+            padding: "4px 9px",
+            border: "1px solid var(--line-strong)",
+            borderRadius: 999,
+            color: "var(--ink-dim)",
+            background: "transparent",
+            cursor: messages.length <= 1 && !loading ? "default" : "pointer",
+            opacity: messages.length <= 1 && !loading ? 0.4 : 1,
+            transition: "color 0.12s, border-color 0.12s",
+          }}
+          onMouseEnter={(e) => {
+            if (messages.length <= 1 && !loading) return;
+            const el = e.currentTarget;
+            el.style.color = "var(--accent)";
+            el.style.borderColor = "var(--accent)";
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget;
+            el.style.color = "var(--ink-dim)";
+            el.style.borderColor = "var(--line-strong)";
+          }}
+        >
+          + new chat
+        </button>
         <div
           style={{
             display: "inline-flex",
@@ -311,6 +344,8 @@ export function ChatBot() {
                     }}
                   />
                 </span>
+              ) : msg.role === "ai" ? (
+                <Markdown>{msg.text}</Markdown>
               ) : (
                 msg.text
               )}

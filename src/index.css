@@ -149,3 +149,101 @@
 .typing-dot:nth-child(3) {
   animation-delay: 0.36s;
 }
+
+/* Markdown rendered inside AI chat bubbles. Tight spacing suited to a chat
+   bubble; colours pull from the site's theme variables so it adapts to
+   light/dark automatically. */
+.chat-md > :first-child {
+  margin-top: 0;
+}
+.chat-md > :last-child {
+  margin-bottom: 0;
+}
+.chat-md p {
+  margin: 0 0 8px;
+}
+.chat-md ul,
+.chat-md ol {
+  margin: 6px 0 8px;
+  padding-left: 20px;
+}
+.chat-md li {
+  margin: 3px 0;
+}
+.chat-md li::marker {
+  color: var(--accent);
+}
+.chat-md strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.chat-md em {
+  font-style: italic;
+}
+.chat-md a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.chat-md h1,
+.chat-md h2,
+.chat-md h3,
+.chat-md h4 {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 12px 0 6px;
+  letter-spacing: -0.01em;
+}
+.chat-md h1 {
+  font-size: 15px;
+}
+.chat-md code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.chat-md pre {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+.chat-md pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+}
+.chat-md blockquote {
+  margin: 8px 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--line-strong);
+  color: var(--ink-dim);
+}
+.chat-md hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 10px 0;
+}
+.chat-md table {
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 13px;
+  display: block;
+  overflow-x: auto;
+}
+.chat-md th,
+.chat-md td {
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  text-align: left;
+}
+.chat-md th {
+  background: var(--panel);
+}
