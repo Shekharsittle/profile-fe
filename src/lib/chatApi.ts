@@ -7,10 +7,16 @@
  * endpoint is a POST carrying a JSON body.
  */
 
-// Base URL of the backend. Defaults to the local dev server; override in
-// production via a `VITE_API_BASE_URL` env var (see .env.example).
+// Base URL of the backend.
+// - If VITE_API_BASE_URL is set, always use it (e.g. a split Firebase + Cloud
+//   Run deploy, where the frontend and backend are on different origins).
+// - Otherwise, in a production build default to "" (same-origin, relative
+//   requests) — matches the single Cloud Run service that serves both the SPA
+//   and the API, so no API URL needs baking in at build time.
+// - In dev (`npm run dev`) default to the local backend.
 const API_BASE_URL: string =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.PROD ? "" : "http://localhost:8000");
 
 export interface StreamChatOptions {
   /** The user's message. */

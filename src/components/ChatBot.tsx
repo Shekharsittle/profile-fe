@@ -421,6 +421,9 @@ export function ChatBot() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="ask about his experience, stack, or anything AI/ML…"
+          // Mirrors the backend's ChatRequest max_length so a long message is
+          // stopped at the input instead of bouncing off validation as a 422.
+          maxLength={2000}
           disabled={loading}
           style={{
             flex: 1,
