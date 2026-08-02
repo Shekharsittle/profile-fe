@@ -21,7 +21,7 @@ const EDU = [
   },
   {
     lg: "GCP",
-    degree: "Cloud Digital Leader",
+    degree: "Generative AI Leader",
     school: "Google Cloud Platform",
     yr: "Certification",
   },
