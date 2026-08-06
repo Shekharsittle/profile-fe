@@ -7,26 +7,9 @@ export function Hero() {
   }
 
   return (
-    <section
-      style={{
-        padding: "40px 0 40px",
-        display: "grid",
-        gridTemplateColumns: "340px 1fr",
-        gap: 44,
-        alignItems: "start",
-        borderTop: "none",
-      }}
-    >
+    <section className="hero-section grid-hero">
       {/* Identity column */}
-      <aside
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-          position: "sticky",
-          top: 84,
-        }}
-      >
+      <aside className="hero-aside">
         {/* Avatar + name row */}
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ position: "relative", flexShrink: 0, width: 72, height: 72 }}>
@@ -44,6 +27,8 @@ export function Hero() {
               <img
                 src="/photo.jpeg"
                 alt="Shekhar Singh"
+                width={72}
+                height={72}
                 style={{
                   width: "100%",
                   height: "100%",
@@ -67,7 +52,7 @@ export function Hero() {
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
             <div
               style={{
                 fontFamily: "'JetBrains Mono', ui-monospace, monospace",
@@ -81,7 +66,7 @@ export function Hero() {
             </div>
             <h1
               style={{
-                fontSize: 30,
+                fontSize: "clamp(26px, 6.5vw, 30px)",
                 fontWeight: 600,
                 letterSpacing: "-0.01em",
                 lineHeight: 1.05,
@@ -149,64 +134,18 @@ export function Hero() {
         </div>
 
         {/* Actions */}
-        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-          <a
-            href="#"
-            onClick={handleResumeClick}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "9px 14px",
-              border: "1px solid var(--accent)",
-              borderRadius: 8,
-              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: 12,
-              color: "#0b0c0d",
-              background: "var(--accent)",
-              transition: "filter 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.filter = "brightness(1.06)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.filter = "none";
-            }}
-          >
+        <div className="hero-actions">
+          <a href="#" onClick={handleResumeClick} className="btn-solid">
             ↓ resume.pdf
           </a>
-          <a
-            href="#contact"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "9px 14px",
-              border: "1px solid var(--line-strong)",
-              borderRadius: 8,
-              fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: 12,
-              color: "var(--ink)",
-              transition: "all 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.borderColor = "var(--accent)";
-              el.style.color = "var(--accent)";
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.borderColor = "var(--line-strong)";
-              el.style.color = "var(--ink)";
-            }}
-          >
+          <a href="#contact" className="btn-ghost">
             say hi →
           </a>
         </div>
       </aside>
 
       {/* Chat column */}
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
         <ChatBot />
       </div>
     </section>

@@ -10,6 +10,12 @@ import { Footer } from "./components/Footer";
 
 type Theme = "dark" | "light";
 
+// Matches --bg for each theme; drives the mobile browser chrome colour.
+const THEME_COLOR: Record<Theme, string> = {
+  dark: "#0b0c0d",
+  light: "#f6f5f1",
+};
+
 function App() {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
@@ -21,9 +27,16 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    // Without this the address bar / status bar keeps the initial colour and
+    // clashes with the page after a theme switch.
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", THEME_COLOR[theme]);
     try {
       localStorage.setItem("sh_theme", theme);
-    } catch {}
+    } catch {
+      // Private browsing can reject writes — the theme just won't persist.
+    }
   }, [theme]);
 
   function toggleTheme() {
@@ -31,21 +44,9 @@ function App() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--bg)",
-        color: "var(--ink)",
-      }}
-    >
+    <div className="app-root">
       <Nav theme={theme} onToggleTheme={toggleTheme} />
-      <div
-        style={{
-          maxWidth: 1180,
-          margin: "0 auto",
-          padding: "24px 28px",
-        }}
-      >
+      <div className="shell">
         <Hero />
         <About />
         <Experience />

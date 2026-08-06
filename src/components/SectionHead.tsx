@@ -6,14 +6,7 @@ interface SectionHeadProps {
 
 export function SectionHead({ num, title, sub }: SectionHeadProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "baseline",
-        gap: 14,
-        marginBottom: 28,
-      }}
-    >
+    <div className="sec-head">
       <span
         style={{
           fontFamily: "'JetBrains Mono', ui-monospace, monospace",
@@ -25,26 +18,10 @@ export function SectionHead({ num, title, sub }: SectionHeadProps) {
       >
         {num}
       </span>
-      <h2
-        style={{
-          fontSize: 28,
-          fontWeight: 600,
-          letterSpacing: "-0.01em",
-          color: "var(--ink)",
-        }}
-      >
-        {title}
-      </h2>
-      <div
-        style={{
-          flex: 1,
-          height: 1,
-          background: "var(--line)",
-          alignSelf: "center",
-          marginLeft: 10,
-        }}
-      />
+      <h2 className="sec-head-title">{title}</h2>
+      <div className="sec-head-rule" />
       <span
+        className="sec-head-sub"
         style={{
           fontFamily: "'JetBrains Mono', ui-monospace, monospace",
           fontSize: 11,

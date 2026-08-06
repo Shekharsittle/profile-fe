@@ -7,64 +7,21 @@ export function Experience() {
   const active = experience.find((e) => e.id === activeId)!;
 
   return (
-    <section
-      id="experience"
-      style={{
-        padding: "56px 0",
-        borderTop: "1px solid var(--line)",
-      }}
-    >
-      <SectionHead num="// 02" title="Experience" sub="click a logo" />
+    <section id="experience" className="section">
+      <SectionHead num="// 02" title="Experience" sub="tap a logo" />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "360px 1fr",
-          gap: 24,
-          alignItems: "start",
-        }}
-      >
+      <div className="grid-exp">
         {/* Grid of company cards */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 10,
-          }}
-        >
+        <div className="exp-cards">
           {experience.map((exp) => {
             const isActive = exp.id === activeId;
             return (
               <button
                 key={exp.id}
                 onClick={() => setActiveId(exp.id)}
-                style={{
-                  border: `1px solid ${isActive ? "var(--accent)" : "var(--line)"}`,
-                  borderRadius: 12,
-                  padding: 16,
-                  background: isActive ? "var(--accent-dim)" : "var(--panel)",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10,
-                  textAlign: "left",
-                  transform: isActive ? "none" : undefined,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    const el = e.currentTarget;
-                    el.style.borderColor = "var(--accent)";
-                    el.style.transform = "translateY(-2px)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    const el = e.currentTarget;
-                    el.style.borderColor = "var(--line)";
-                    el.style.transform = "none";
-                  }
-                }}
+                className="exp-card"
+                data-active={isActive}
+                aria-pressed={isActive}
               >
                 <div
                   style={{
@@ -104,18 +61,10 @@ export function Experience() {
         </div>
 
         {/* Detail panel */}
-        <div
-          style={{
-            border: "1px solid var(--line)",
-            borderRadius: 12,
-            padding: "26px 28px",
-            background: "var(--panel)",
-            minHeight: 380,
-          }}
-        >
+        <div className="exp-panel">
           <h3
             style={{
-              fontSize: 22,
+              fontSize: "clamp(18px, 4.6vw, 22px)",
               fontWeight: 600,
               letterSpacing: "-0.01em",
               color: "var(--ink)",
@@ -155,13 +104,7 @@ export function Experience() {
             }}
           >
             {active.bullets.map((b, i) => (
-              <li
-                key={i}
-                style={{
-                  marginBottom: 6,
-                  // accent bullet color via CSS
-                }}
-              >
+              <li key={i} style={{ marginBottom: 6 }}>
                 {b}
               </li>
             ))}

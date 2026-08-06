@@ -29,27 +29,14 @@ const EDU = [
 
 export function Education() {
   return (
-    <section
-      id="education"
-      style={{
-        padding: "56px 0",
-        borderTop: "1px solid var(--line)",
-      }}
-    >
+    <section id="education" className="section">
       <SectionHead
         num="// 04"
         title="Education"
         sub="where I learned the basics"
       />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 14,
-          gridAutoRows: "auto",
-        }}
-      >
+      <div className="grid-pair">
         {EDU.map((e) => (
           <div
             key={e.degree}
@@ -75,13 +62,14 @@ export function Education() {
                 justifyContent: "center",
                 fontFamily: "'JetBrains Mono', ui-monospace, monospace",
                 fontWeight: 700,
+                fontSize: 13,
                 color: "var(--ink-dim)",
                 flexShrink: 0,
               }}
             >
               {e.lg}
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <div
                 style={{ fontSize: 15, fontWeight: 500, color: "var(--ink)" }}
               >

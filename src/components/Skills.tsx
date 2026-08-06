@@ -47,22 +47,10 @@ const SKILL_GROUPS = [
 
 export function Skills() {
   return (
-    <section
-      id="skills"
-      style={{
-        padding: "56px 0",
-        borderTop: "1px solid var(--line)",
-      }}
-    >
+    <section id="skills" className="section">
       <SectionHead num="// 03" title="Skills" sub="the stack" />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 14,
-        }}
-      >
+      <div className="grid-skills">
         {SKILL_GROUPS.map((group) => (
           <div
             key={group.title}

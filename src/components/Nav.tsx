@@ -5,8 +5,11 @@ interface NavProps {
   onToggleTheme: () => void;
 }
 
+const LINKS = ["about", "experience", "skills", "contact"];
+
 export function Nav({ theme, onToggleTheme }: NavProps) {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -14,126 +17,150 @@ export function Nav({ theme, onToggleTheme }: NavProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Dismiss the menu on Escape, and when the viewport grows back past the
+  // breakpoint where the full nav returns — otherwise it would stay mounted
+  // and duplicate the links already visible in the bar.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    const mq = window.matchMedia("(min-width: 901px)");
+    const onChange = () => {
+      if (mq.matches) setMenuOpen(false);
+    };
+
+    document.addEventListener("keydown", onKey);
+    mq.addEventListener("change", onChange);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      mq.removeEventListener("change", onChange);
+    };
+  }, [menuOpen]);
+
+  // The bar goes opaque once scrolled, and also whenever the menu is open so
+  // the dropdown never renders over bare page content.
+  const raised = scrolled || menuOpen;
+
   return (
     <nav
+      className="nav"
       style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 40,
-        display: "flex",
-        alignItems: "center",
-        gap: 22,
-        padding: "14px 28px",
-        background: scrolled
+        background: raised
           ? "color-mix(in oklab, var(--bg) 82%, transparent)"
           : "transparent",
-        backdropFilter: scrolled ? "blur(10px)" : "none",
-        borderBottom: scrolled ? "1px solid var(--line)" : "1px solid transparent",
-        fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-        fontSize: 13,
-        transition: "background 0.2s, border-color 0.2s",
+        backdropFilter: raised ? "blur(10px)" : "none",
+        borderBottom: raised
+          ? "1px solid var(--line)"
+          : "1px solid transparent",
       }}
     >
-      <div
-        style={{
-          fontWeight: 600,
-          letterSpacing: "0.3px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <span
+      <div className="nav-row">
+        <div
           style={{
-            width: 10,
-            height: 10,
-            background: "var(--accent)",
-            display: "inline-block",
-            borderRadius: 2,
-            boxShadow: "0 0 0 4px var(--accent-dim)",
+            fontWeight: 600,
+            letterSpacing: "0.3px",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexShrink: 0,
           }}
-        />
-        shekhar.sh
+        >
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              background: "var(--accent)",
+              display: "inline-block",
+              borderRadius: 2,
+              boxShadow: "0 0 0 4px var(--accent-dim)",
+              flexShrink: 0,
+            }}
+          />
+          shekhar.sh
+        </div>
+
+        <div className="nav-links">
+          {LINKS.map((link) => (
+            <a key={link} href={`#${link}`} className="nav-link">
+              <span style={{ color: "var(--ink-faint)", marginRight: 6 }}>·</span>
+              {link}
+            </a>
+          ))}
+        </div>
+
+        <div style={{ flex: 1 }} />
+
+        <div className="nav-status">
+          <span
+            className="dot-pulse"
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "var(--accent)",
+              boxShadow: "0 0 0 3px var(--accent-dim)",
+              flexShrink: 0,
+            }}
+          />
+          <span>open to roles</span>
+        </div>
+
+        <button
+          onClick={onToggleTheme}
+          title="Toggle theme"
+          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+          className="btn-outline"
+          style={{ fontSize: 12, flexShrink: 0 }}
+        >
+          <span>{theme === "dark" ? "◐" : "◑"}</span>
+          <span>{theme}</span>
+        </button>
+
+        <button
+          className="nav-burger"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-expanded={menuOpen}
+          aria-controls="nav-menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 18,
-          marginLeft: 24,
-          color: "var(--ink-dim)",
-        }}
-      >
-        {["about", "experience", "skills", "contact"].map((link) => (
-          <a
-            key={link}
-            href={`#${link}`}
-            style={{ padding: "4px 0", position: "relative" }}
-            onMouseEnter={(e) =>
-              ((e.target as HTMLElement).style.color = "var(--ink)")
-            }
-            onMouseLeave={(e) =>
-              ((e.target as HTMLElement).style.color = "var(--ink-dim)")
-            }
+      {menuOpen && (
+        <div id="nav-menu" className="nav-menu">
+          {LINKS.map((link) => (
+            <a
+              key={link}
+              href={`#${link}`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <span style={{ color: "var(--ink-faint)" }}>·</span>
+              {link}
+            </a>
+          ))}
+          <div
+            className="nav-status"
+            style={{ display: "flex", paddingTop: 12 }}
           >
-            <span style={{ color: "var(--ink-faint)", marginRight: 6 }}>·</span>
-            {link}
-          </a>
-        ))}
-      </div>
-
-      <div style={{ flex: 1 }} />
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          color: "var(--ink-dim)",
-          fontSize: 12,
-        }}
-      >
-        <span
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            background: "var(--accent)",
-            boxShadow: "0 0 0 3px var(--accent-dim)",
-          }}
-          className="dot-pulse"
-        />
-        <span>open to roles</span>
-      </div>
-
-      <button
-        onClick={onToggleTheme}
-        title="Toggle theme"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "6px 10px",
-          border: "1px solid var(--line-strong)",
-          borderRadius: 999,
-          color: "var(--ink-dim)",
-          fontSize: 12,
-          transition: "color 0.15s, border-color 0.15s",
-        }}
-        onMouseEnter={(e) => {
-          const el = e.currentTarget as HTMLButtonElement;
-          el.style.color = "var(--ink)";
-          el.style.borderColor = "var(--accent)";
-        }}
-        onMouseLeave={(e) => {
-          const el = e.currentTarget as HTMLButtonElement;
-          el.style.color = "var(--ink-dim)";
-          el.style.borderColor = "var(--line-strong)";
-        }}
-      >
-        <span>{theme === "dark" ? "◐" : "◑"}</span>
-        <span>{theme}</span>
-      </button>
+            <span
+              className="dot-pulse"
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "var(--accent)",
+                boxShadow: "0 0 0 3px var(--accent-dim)",
+              }}
+            />
+            <span>open to roles</span>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

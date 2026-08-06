@@ -9,21 +9,9 @@ const STATS = [
 
 export function About() {
   return (
-    <section
-      id="about"
-      style={{
-        padding: "56px 0",
-        borderTop: "1px solid var(--line)",
-      }}
-    >
+    <section id="about" className="section">
       <SectionHead num="// 01" title="About" sub="a brief intro" />
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.4fr 1fr",
-          gap: 40,
-        }}
-      >
+      <div className="grid-about">
         <div>
           <p
             style={{
@@ -66,13 +54,7 @@ export function About() {
           </p>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 10,
-          }}
-        >
+        <div className="grid-pair grid-stats" style={{ gap: 10 }}>
           {STATS.map((s) => (
             <div
               key={s.l}
@@ -86,7 +68,7 @@ export function About() {
               <div
                 style={{
                   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: 30,
+                  fontSize: "clamp(24px, 6vw, 30px)",
                   fontWeight: 500,
                   color: "var(--accent)",
                   lineHeight: 1,

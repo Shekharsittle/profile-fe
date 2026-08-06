@@ -1,5 +1,12 @@
 import { useState } from "react";
+import { sendContactMessage } from "../lib/contactApi";
 import { SectionHead } from "./SectionHead";
+
+type Status =
+  | { kind: "idle" }
+  | { kind: "sending" }
+  | { kind: "sent"; detail: string }
+  | { kind: "error"; detail: string };
 
 const LINKS = [
   { k: "email", label: "shekhar.singhh9@gmail.com", href: "mailto:shekhar.singhh9@gmail.com" },
@@ -9,58 +16,55 @@ const LINKS = [
   { k: "resume", label: "download resume.pdf ↓", href: "#" },
 ];
 
+const labelStyle: React.CSSProperties = {
+  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+  fontSize: 10,
+  color: "var(--ink-dim)",
+  textTransform: "uppercase",
+  letterSpacing: "0.18em",
+};
+
 export function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     company: "",
     message: "",
+    // Honeypot — hidden from real users, so anything here means a bot.
+    website: "",
   });
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
 
-  function handleSubmit(e: React.FormEvent) {
+  const sending = status.kind === "sending";
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    alert("(placeholder) message sent — wire up your form endpoint here");
+    if (sending) return;
+    setStatus({ kind: "sending" });
+
+    try {
+      const detail = await sendContactMessage({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        company: formData.company.trim() || undefined,
+        message: formData.message.trim(),
+        website: formData.website,
+      });
+      setStatus({ kind: "sent", detail });
+      // Clear on success so a stray second submit can't resend the same note.
+      setFormData({ name: "", email: "", company: "", message: "", website: "" });
+    } catch (err) {
+      setStatus({ kind: "error", detail: (err as Error).message });
+    }
   }
 
-  const inputStyle: React.CSSProperties = {
-    background: "var(--panel)",
-    border: "1px solid var(--line-strong)",
-    borderRadius: 8,
-    padding: "10px 12px",
-    color: "var(--ink)",
-    fontFamily: "'Inter', system-ui, sans-serif",
-    fontSize: 14,
-    outline: "none",
-    transition: "border-color 0.12s",
-    width: "100%",
-  };
-
   return (
-    <section
-      id="contact"
-      style={{
-        padding: "56px 0",
-        borderTop: "1px solid var(--line)",
-      }}
-    >
+    <section id="contact" className="section">
       <SectionHead num="// 05" title="Get in Touch" sub="I reply within 24h" />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 24,
-        }}
-      >
+      <div className="grid-contact">
         {/* Direct channels */}
-        <div
-          style={{
-            border: "1px solid var(--line)",
-            borderRadius: 14,
-            padding: 28,
-            background: "var(--panel)",
-          }}
-        >
+        <div className="contact-card">
           <h3
             style={{
               fontSize: 20,
@@ -79,7 +83,7 @@ export function Contact() {
               marginBottom: 18,
             }}
           >
-            Fastest way to reach me — or drop a message on the right and I'll
+            Fastest way to reach me — or drop a message in the form and I'll
             get back.
           </p>
           <div
@@ -92,36 +96,8 @@ export function Contact() {
             }}
           >
             {LINKS.map((link) => (
-              <a
-                key={link.k}
-                href={link.href}
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "center",
-                  color: "var(--ink)",
-                  padding: "8px 0",
-                  borderBottom: "1px dashed var(--line)",
-                  transition: "color 0.12s",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "var(--accent)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.color = "var(--ink)";
-                }}
-              >
-                <span
-                  style={{
-                    color: "var(--ink-faint)",
-                    minWidth: 80,
-                    fontSize: 11,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.14em",
-                  }}
-                >
-                  {link.k}
-                </span>
+              <a key={link.k} href={link.href} className="contact-link">
+                <span className="contact-link-key">{link.k}</span>
                 {link.label}
               </a>
             ))}
@@ -133,163 +109,146 @@ export function Contact() {
           onSubmit={handleSubmit}
           style={{ display: "flex", flexDirection: "column", gap: 12 }}
         >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 12,
-            }}
-          >
+          <div className="grid-pair" style={{ gap: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                style={{
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: 10,
-                  color: "var(--ink-dim)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.18em",
-                }}
-              >
+              <label htmlFor="cf-name" style={labelStyle}>
                 name
               </label>
               <input
+                id="cf-name"
+                className="field"
                 required
+                maxLength={100}
+                disabled={sending}
                 placeholder="Jane Doe"
+                autoComplete="name"
+                enterKeyHint="next"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData((p) => ({ ...p, name: e.target.value }))
                 }
-                style={inputStyle}
-                onFocus={(e) =>
-                  ((e.target as HTMLInputElement).style.borderColor =
-                    "var(--accent)")
-                }
-                onBlur={(e) =>
-                  ((e.target as HTMLInputElement).style.borderColor =
-                    "var(--line-strong)")
-                }
               />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label
-                style={{
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: 10,
-                  color: "var(--ink-dim)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.18em",
-                }}
-              >
+              <label htmlFor="cf-email" style={labelStyle}>
                 email
               </label>
               <input
+                id="cf-email"
+                className="field"
                 type="email"
                 required
+                maxLength={254}
+                disabled={sending}
                 placeholder="jane@company.com"
+                autoComplete="email"
+                inputMode="email"
+                autoCapitalize="off"
+                autoCorrect="off"
+                enterKeyHint="next"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData((p) => ({ ...p, email: e.target.value }))
-                }
-                style={inputStyle}
-                onFocus={(e) =>
-                  ((e.target as HTMLInputElement).style.borderColor =
-                    "var(--accent)")
-                }
-                onBlur={(e) =>
-                  ((e.target as HTMLInputElement).style.borderColor =
-                    "var(--line-strong)")
                 }
               />
             </div>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label
-              style={{
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: 10,
-                color: "var(--ink-dim)",
-                textTransform: "uppercase",
-                letterSpacing: "0.18em",
-              }}
-            >
+            <label htmlFor="cf-company" style={labelStyle}>
               company / role
             </label>
             <input
+              id="cf-company"
+              className="field"
+              maxLength={150}
+              disabled={sending}
               placeholder="Acme · Hiring Manager"
+              autoComplete="organization"
+              enterKeyHint="next"
               value={formData.company}
               onChange={(e) =>
                 setFormData((p) => ({ ...p, company: e.target.value }))
-              }
-              style={inputStyle}
-              onFocus={(e) =>
-                ((e.target as HTMLInputElement).style.borderColor =
-                  "var(--accent)")
-              }
-              onBlur={(e) =>
-                ((e.target as HTMLInputElement).style.borderColor =
-                  "var(--line-strong)")
               }
             />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label
-              style={{
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: 10,
-                color: "var(--ink-dim)",
-                textTransform: "uppercase",
-                letterSpacing: "0.18em",
-              }}
-            >
+            <label htmlFor="cf-message" style={labelStyle}>
               message
             </label>
             <textarea
+              id="cf-message"
+              className="field"
               required
+              // Mirrors ContactRequest.message max_length on the backend, so
+              // an over-long note is stopped here instead of 422-ing.
+              maxLength={4000}
+              disabled={sending}
               placeholder="Hi Shekhar, we're hiring for…"
+              enterKeyHint="send"
               value={formData.message}
               onChange={(e) =>
                 setFormData((p) => ({ ...p, message: e.target.value }))
               }
-              style={{ ...inputStyle, resize: "vertical", minHeight: 110 }}
-              onFocus={(e) =>
-                ((e.target as HTMLTextAreaElement).style.borderColor =
-                  "var(--accent)")
-              }
-              onBlur={(e) =>
-                ((e.target as HTMLTextAreaElement).style.borderColor =
-                  "var(--line-strong)")
+              style={{ resize: "vertical", minHeight: 110 }}
+            />
+          </div>
+
+          {/* Honeypot: parked far off-screen, hidden from screen readers
+              (aria-hidden) and from tab order (tabIndex -1), so no real user
+              can reach it and any value means a bot. Positioned rather than
+              `display:none`, which some bots deliberately skip. */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: -9999,
+              top: "auto",
+              width: 1,
+              height: 1,
+              overflow: "hidden",
+            }}
+          >
+            <label htmlFor="cf-website">website</label>
+            <input
+              id="cf-website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={formData.website}
+              onChange={(e) =>
+                setFormData((p) => ({ ...p, website: e.target.value }))
               }
             />
           </div>
 
           <button
             type="submit"
+            className="btn-solid"
+            disabled={sending}
+            style={{ padding: "12px 14px", opacity: sending ? 0.6 : 1 }}
+          >
+            {sending ? "sending…" : "send message →"}
+          </button>
+
+          {/* aria-live so the outcome is announced, not just shown. */}
+          <div
+            role="status"
+            aria-live="polite"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "9px 14px",
-              border: "1px solid var(--accent)",
-              borderRadius: 8,
+              minHeight: 18,
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-              fontSize: 12,
-              color: "#0b0c0d",
-              background: "var(--accent)",
-              transition: "filter 0.15s",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.filter = "brightness(1.06)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.filter = "none";
+              fontSize: 11,
+              lineHeight: 1.5,
+              color:
+                status.kind === "error" ? "#ff6b6b" : "var(--accent)",
             }}
           >
-            send message →
-          </button>
+            {status.kind === "sent" || status.kind === "error"
+              ? status.detail
+              : ""}
+          </div>
         </form>
       </div>
     </section>

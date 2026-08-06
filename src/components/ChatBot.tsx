@@ -130,35 +130,13 @@ export function ChatBot() {
     inputRef.current?.focus();
   }
 
+  const isFresh = messages.length <= 1 && !loading;
+
   return (
-    <div
-      style={{
-        border: "1px solid var(--line-strong)",
-        borderRadius: 14,
-        background: "linear-gradient(180deg, var(--panel), var(--bg-2))",
-        boxShadow: "var(--shadow)",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 540,
-      }}
-    >
+    <div className="chat-card">
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "12px 16px",
-          borderBottom: "1px solid var(--line)",
-          fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-          fontSize: 11,
-          color: "var(--ink-dim)",
-          textTransform: "uppercase",
-          letterSpacing: "0.16em",
-        }}
-      >
-        <div style={{ display: "flex", gap: 5 }}>
+      <div className="chat-head">
+        <div className="chat-dots">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
@@ -171,35 +149,20 @@ export function ChatBot() {
             />
           ))}
         </div>
-        <div style={{ flex: 1 }}>ai-twin · /chat</div>
+        <div className="chat-title">ai-twin · /chat</div>
         <button
           onClick={resetSession}
           title="Start a new conversation"
-          disabled={messages.length <= 1 && !loading}
+          disabled={isFresh}
+          className="btn-outline"
           style={{
             fontFamily: "'JetBrains Mono', ui-monospace, monospace",
             fontSize: 10,
             textTransform: "uppercase",
             letterSpacing: "0.14em",
-            padding: "4px 9px",
-            border: "1px solid var(--line-strong)",
-            borderRadius: 999,
-            color: "var(--ink-dim)",
-            background: "transparent",
-            cursor: messages.length <= 1 && !loading ? "default" : "pointer",
-            opacity: messages.length <= 1 && !loading ? 0.4 : 1,
-            transition: "color 0.12s, border-color 0.12s",
-          }}
-          onMouseEnter={(e) => {
-            if (messages.length <= 1 && !loading) return;
-            const el = e.currentTarget;
-            el.style.color = "var(--accent)";
-            el.style.borderColor = "var(--accent)";
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget;
-            el.style.color = "var(--ink-dim)";
-            el.style.borderColor = "var(--line-strong)";
+            padding: "6px 9px",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
           }}
         >
           + new chat
@@ -210,6 +173,7 @@ export function ChatBot() {
             alignItems: "center",
             gap: 6,
             color: "var(--accent)",
+            flexShrink: 0,
           }}
         >
           <span
@@ -222,31 +186,17 @@ export function ChatBot() {
               display: "inline-block",
             }}
           />
-          online
+          <span className="chat-online-label">online</span>
         </div>
       </div>
 
       {/* Messages */}
-      <div
-        ref={bodyRef}
-        style={{
-          flex: 1,
-          padding: "22px 22px 8px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-          overflowY: "auto",
-          maxHeight: 420,
-        }}
-      >
+      <div ref={bodyRef} className="chat-body">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className="animate-fadeUp"
+            className="animate-fadeUp chat-msg"
             style={{
-              display: "flex",
-              gap: 12,
-              maxWidth: "88%",
               alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
               flexDirection: msg.role === "user" ? "row-reverse" : "row",
             }}
@@ -273,6 +223,7 @@ export function ChatBot() {
               {msg.role === "user" ? "YOU" : "AI"}
             </div>
             <div
+              className="chat-bubble"
               style={{
                 padding: "11px 14px",
                 borderRadius: 12,
@@ -313,36 +264,19 @@ export function ChatBot() {
                     padding: "2px 0",
                   }}
                 >
-                  <span
-                    className="typing-dot"
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: "var(--ink-faint)",
-                      display: "inline-block",
-                    }}
-                  />
-                  <span
-                    className="typing-dot"
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: "var(--ink-faint)",
-                      display: "inline-block",
-                    }}
-                  />
-                  <span
-                    className="typing-dot"
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: "var(--ink-faint)",
-                      display: "inline-block",
-                    }}
-                  />
+                  {[0, 1, 2].map((d) => (
+                    <span
+                      key={d}
+                      className="typing-dot"
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: "var(--ink-faint)",
+                        display: "inline-block",
+                      }}
+                    />
+                  ))}
                 </span>
               ) : msg.role === "ai" ? (
                 <Markdown>{msg.text}</Markdown>
@@ -355,39 +289,17 @@ export function ChatBot() {
       </div>
 
       {/* Suggestions */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 6,
-          padding: "0 22px 14px",
-        }}
-      >
+      <div className="chat-suggest">
         {SUGGESTIONS.map((s) => (
           <button
             key={s.label}
             onClick={() => sendMessage(s.q)}
+            disabled={loading}
+            className="btn-outline btn-fill"
             style={{
               fontFamily: "'JetBrains Mono', ui-monospace, monospace",
               fontSize: 11,
-              padding: "6px 10px",
-              border: "1px solid var(--line-strong)",
-              borderRadius: 999,
-              color: "var(--ink-dim)",
-              transition: "all 0.12s ease",
-              background: "transparent",
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget;
-              el.style.color = "var(--accent)";
-              el.style.borderColor = "var(--accent)";
-              el.style.background = "var(--accent-dim)";
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget;
-              el.style.color = "var(--ink-dim)";
-              el.style.borderColor = "var(--line-strong)";
-              el.style.background = "transparent";
+              padding: "7px 11px",
             }}
           >
             {s.label}
@@ -396,17 +308,7 @@ export function ChatBot() {
       </div>
 
       {/* Input */}
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          borderTop: "1px solid var(--line)",
-          padding: "12px 14px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          background: "var(--panel)",
-        }}
-      >
+      <form onSubmit={handleSubmit} className="chat-form">
         <span
           style={{
             color: "var(--accent)",
@@ -418,48 +320,35 @@ export function ChatBot() {
         </span>
         <input
           ref={inputRef}
+          className="chat-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="ask about his experience, stack, or anything AI/ML…"
+          aria-label="Ask the AI twin a question"
           // Mirrors the backend's ChatRequest max_length so a long message is
           // stopped at the input instead of bouncing off validation as a 422.
           maxLength={2000}
           disabled={loading}
-          style={{
-            flex: 1,
-            background: "none",
-            border: "none",
-            outline: "none",
-            color: "var(--ink)",
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: 14,
-          }}
+          enterKeyHint="send"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="sentences"
         />
         <button
           type="submit"
           disabled={loading}
+          className="btn-outline"
           style={{
-            padding: "7px 12px",
-            border: "1px solid var(--line-strong)",
             borderRadius: 8,
             fontFamily: "'JetBrains Mono', ui-monospace, monospace",
             fontSize: 11,
-            color: "var(--ink-dim)",
-            transition: "color 0.12s, border-color 0.12s",
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget;
-            el.style.color = "var(--accent)";
-            el.style.borderColor = "var(--accent)";
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget;
-            el.style.color = "var(--ink-dim)";
-            el.style.borderColor = "var(--line-strong)";
+            padding: "8px 12px",
+            flexShrink: 0,
           }}
         >
           send{" "}
           <span
+            className="chat-kbd"
             style={{
               fontSize: 10,
               padding: "2px 6px",
